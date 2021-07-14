@@ -1,5 +1,4 @@
-Containers for VUB-HPC
-######################
+# Containers for VUB-HPC
 
 This repo holds the dockerfile for the containers in use by VUB-HPC.
 
