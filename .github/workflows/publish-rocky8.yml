@@ -34,9 +34,9 @@ jobs:
       with:
         image: ${{ steps.build-image.outputs.image }}
         tags: ${{ steps.build-image.outputs.tags }}
-        registry: ghcr.io/vub-hpc
-        username: ${{github.actor}}
-        password: ${{secrets.GITHUB_TOKEN}}
+        registry: ghcr.io/${{ github.repository_owner }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Print image url
       run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}"
