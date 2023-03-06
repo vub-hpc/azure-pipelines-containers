@@ -2,4 +2,5 @@
 # in azure pipelines
 FROM quay.io/rockylinux/rockylinux:8
 RUN dnf -y install sudo https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+RUN dnf config-manager --set-enabled powertools
 CMD ["/bin/bash"]
