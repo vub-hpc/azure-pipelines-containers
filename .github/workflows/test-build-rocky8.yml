@@ -1,0 +1,25 @@
+name: Test building azure-pipelines-rocky8 image
+on:
+  push:
+    paths:
+      - 'azure-pipelines-rocky8/*'
+  pull_request:
+    paths:
+      - 'azure-pipelines-rocky8/*'
+
+
+jobs:
+  build:
+    name: Build image for azure-pipelines-rocky8
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: azure-pipelines-rocky8
+        tags: ${{ github.sha }}
+        context: azure-pipelines-rocky8
+        dockerfiles: |
+          ./azure-pipelines-rocky8/Dockerfile
