@@ -1,0 +1,50 @@
+name: Build and publish the azure-pipelines-jupyterhub image
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'azure-pipelines-jupyterhub/*'
+  schedule:
+    # rebuild image every Sunday
+    - cron: '43 3 * * 0'
+
+jobs:
+  build:
+    name: Build and publish image for azure-pipelines-jupyterhub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Fetch vsc-config
+      uses: actions/checkout@v3
+      with:
+        repository: vub-hpc/vsc-config
+        token: ${{ secrets.GH_PAT_VSC_CONFIG }}
+        path: azure-pipelines-jupyterhub/vsc-config
+
+    - name: Build Image
+      uses: redhat-actions/buildah-build@v2.12
+      id: build-image
+      with:
+        image: azure-pipelines-jupyterhub
+        tags: latest ${{ github.sha }}
+        context: azure-pipelines-jupyterhub
+        build-args: |
+          operator_name=${{ secrets.JH_USERNAME }}
+          operator_uid=${{ secrets.JH_UID }}
+        dockerfiles: |
+          ./azure-pipelines-jupyterhub/Dockerfile
+
+    - name: Publish image on ghcr.io
+      id: push-to-ghcr
+      uses: redhat-actions/push-to-registry@v2.7
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags: ${{ steps.build-image.outputs.tags }}
+        registry: ghcr.io/${{ github.repository_owner }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Print image url
+      run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}"
