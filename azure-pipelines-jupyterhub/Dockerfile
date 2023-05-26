@@ -24,7 +24,7 @@
 # based on https://github.com/jupyterhub/oauthenticator/blob/main/examples/full/Dockerfile
 # JupyterHub run as non-root user
 
-FROM jupyterhub/jupyterhub:2.3
+FROM jupyterhub/jupyterhub:3.1
 
 MAINTAINER VUB-HPC <hpc@vub.be>
 
@@ -45,7 +45,7 @@ RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install oauthenticator
 # install BatchSpawner and Modular Slurm Spawner (vub-hpc fork)
 RUN python3 -m pip install https://github.com/vub-hpc/batchspawner/archive/refs/tags/v1.2.1.tar.gz
-RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v6.1.1.tar.gz
+RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v6.1.2.tar.gz
 # install vsc-config
 ADD vsc-config /opt/vsc-config
 RUN python3 -m pip install vsc-base
