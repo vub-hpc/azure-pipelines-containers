@@ -24,7 +24,7 @@
 # based on https://github.com/jupyterhub/oauthenticator/blob/main/examples/full/Dockerfile
 # JupyterHub run as non-root user
 
-FROM jupyterhub/jupyterhub:2.3
+FROM jupyterhub/jupyterhub:3.1
 
 MAINTAINER VUB-HPC <hpc@vub.be>
 
