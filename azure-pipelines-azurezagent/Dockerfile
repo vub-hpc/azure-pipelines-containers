@@ -27,7 +27,7 @@ ADD https://vstsagentpackage.azureedge.net/agent/$RELEASE/$TARBALL ./
 RUN tar -xzf $TARBALL && rm $TARBALL
 
 
-COPY ./start.sh .
+COPY files/start.sh .
 RUN chmod +x start.sh
 
 ENTRYPOINT [ "./start.sh" ]
