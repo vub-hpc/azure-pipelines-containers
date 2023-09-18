@@ -1,0 +1,29 @@
+name: Test building the azure-pipelines-azureagent image
+on:
+  push:
+    paths:
+      - 'azure-pipelines-azureagent/*'
+  pull_request:
+    paths:
+      - 'azure-pipelines-azureagent/*'
+
+jobs:
+  build:
+    name: Build image for azure-pipelines-azureagent
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Build Image
+      uses: redhat-actions/buildah-build@v2.12
+      id: build-image
+      with:
+        image: azure-pipelines-azureagent
+        tags: latest ${{ github.sha }}
+        context: azure-pipelines-azureagent
+        build-args: |
+          operator_name=${{ secrets.JH_USERNAME }}
+          operator_uid=${{ secrets.JH_UID }}
+        dockerfiles: |
+          ./azure-pipelines-azureagent/Dockerfile
