@@ -17,6 +17,14 @@ trap 'exit 0' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
+# copy the config files and credentials in workdir
+cp /mnt/config/.agent ./
+cp /mnt/config/.credentials ./
+cp /mnt/config/.credentials_rsaparams ./
+cp /mnt/config/.env ./
+cp /mnt/config/.path ./
+cp /mnt/config/license.html ./
+
 chmod +x ./run.sh
 
 # To be aware of TERM and INT signals call run.sh
