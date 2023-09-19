@@ -14,8 +14,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     software-properties-common \
     libicu70
 
-#RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
 ENV RELEASE=3.226.3
