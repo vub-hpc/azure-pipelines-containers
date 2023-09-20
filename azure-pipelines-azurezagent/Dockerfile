@@ -15,13 +15,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     libicu70
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
+ARG az_ag_release
 ENV TARGETARCH=linux-x64
-ENV RELEASE=3.226.3
-ENV TARBALL=pipelines-agent-$TARGETARCH-$RELEASE.tar.gz
+ENV TARBALL=pipelines-agent-$TARGETARCH-$az_ag_release.tar.gz
 
 WORKDIR /azp
 
-ADD https://vstsagentpackage.azureedge.net/agent/$RELEASE/$TARBALL ./
+ADD https://vstsagentpackage.azureedge.net/agent/$az_ag_release/$TARBALL ./
 RUN tar -xzf $TARBALL && rm $TARBALL
 
 
