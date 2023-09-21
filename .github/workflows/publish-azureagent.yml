@@ -33,7 +33,7 @@ jobs:
       id: build-image
       with:
         image: azure-pipelines-azureagent
-        tags: latest ${{ github.sha }} ${{steps.getcurdate.outputs.builddate}}
+        tags: latest ${{ github.sha }} ${{steps.getcurdate.outputs.builddate}} ${{steps.getvstsagentlatest.outputs.vstsagentrelease}} 
         context: azure-pipelines-azureagent
         build-args: |
           az_ag_release=${{steps.getvstsagentlatest.outputs.vstsagentrelease}}
