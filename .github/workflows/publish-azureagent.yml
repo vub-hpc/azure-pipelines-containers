@@ -23,26 +23,26 @@ jobs:
           echo "vstsagentrelease=${release:1}" >> $GITHUB_ENV
           echo "Building release $release"
 
-    # - name: Get current date for later use as a tag
-    #   id: getcurdate
-    #   run: |
-    #       curdate=$(date +%Y%m%d)
-    #       echo "builddate=$curdate" >> $GITHUB_ENV
+    - name: Get current date for later use as a tag
+      id: getcurdate
+      run: |
+          curdate=$(date +%Y%m%d)
+          echo "builddate=$curdate" >> $GITHUB_ENV
 
     - name: Debugging checking release variable
       id : checkrelease
       run: |
-          echo "Release is ${{ steps.getvstsagentlatest.outputs.vstsagentrelease }}"
+          echo "Release is ${{ env.vstsagentrelease }}"
 
     - name: Build Image
       uses: redhat-actions/buildah-build@v2.12
       id: build-image
       with:
         image: azure-pipelines-azureagent
-        tags: latest ${{ github.sha }} ${{ steps.getvstsagentlatest.outputs.vstsagentrelease }} 
+        tags: latest ${{ github.sha }} ${{ env.vstsagentrelease }} 
         context: azure-pipelines-azureagent
         build-args: |
-          az_ag_release=${{ steps.getvstsagentlatest.outputs.vstsagentrelease }}
+          az_ag_release=${{ env.vstsagentrelease }}
         dockerfiles: |
           ./azure-pipelines-azureagent/Dockerfile
 
