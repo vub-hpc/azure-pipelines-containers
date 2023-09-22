@@ -1,0 +1,41 @@
+name: Test building the azure-pipelines-azureagent image
+on:
+  push:
+    paths:
+      - 'azure-pipelines-azureagent/*'
+  pull_request:
+    paths:
+      - 'azure-pipelines-azureagent/*'
+
+jobs:
+  build:
+    name: Build image for azure-pipelines-azureagent
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Determine latest release of VSTS Agent
+      id: getvstsagentlatest
+      run: |
+          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -r .name)
+          echo "vstsagentrelease=${release:1}" >> $GITHUB_ENV
+          echo "Building release $release"
+
+    - name: Get current date for later use as a tag
+      id: getcurdate
+      run: |
+          curdate=$(date +%Y%m%d)
+          echo "builddate=$curdate" >> $GITHUB_ENV
+
+    - name: Build Image
+      uses: redhat-actions/buildah-build@v2.12
+      id: build-image
+      with:
+        image: azure-pipelines-azureagent
+        tags: latest ${{ github.sha }} ${{ env.builddate }} ${{ env.vstsagentrelease }}
+        context: azure-pipelines-azureagent
+        build-args: |
+          az_ag_release=${{ env.vstsagentrelease }}
+        dockerfiles: |
+          ./azure-pipelines-azureagent/Dockerfile
