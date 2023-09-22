@@ -29,17 +29,12 @@ jobs:
           curdate=$(date +%Y%m%d)
           echo "builddate=$curdate" >> $GITHUB_ENV
 
-    - name: Debugging checking release variable
-      id : checkrelease
-      run: |
-          echo "Release is ${{ env.vstsagentrelease }}"
-
     - name: Build Image
       uses: redhat-actions/buildah-build@v2.12
       id: build-image
       with:
         image: azure-pipelines-azureagent
-        tags: latest ${{ github.sha }} ${{ env.vstsagentrelease }} 
+        tags: latest ${{ github.sha }} ${{ env.builddate }} ${{ env.vstsagentrelease }} 
         context: azure-pipelines-azureagent
         build-args: |
           az_ag_release=${{ env.vstsagentrelease }}
