@@ -20,7 +20,7 @@ jobs:
       id: getvstsagentlatest
       run: |
           release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -r .name)
-          echo "vstsagentrelease=$release" >> $GITHUB_ENV
+          echo "vstsagentrelease=${release:1}" >> $GITHUB_ENV
           echo "Building release $release"
 
     - name: Get current date for later use as a tag
