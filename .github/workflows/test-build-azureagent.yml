@@ -27,6 +27,11 @@ jobs:
       run: |
           curdate=$(date +%Y%m%d)
           echo "builddate=$curdate" >> $GITHUB_ENV
+          
+    - name: Debugging checking release variable
+      id : checkrelease
+      run: |
+          echo "Release is ${{steps.getvstsagentlatest.outputs.vstsagentrelease}}"
 
     - name: Build Image
       uses: redhat-actions/buildah-build@v2.12
