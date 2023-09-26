@@ -1,0 +1,79 @@
+name: Build and publish container images
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+  schedule:
+   # rebuild image every Sunday
+   - cron: '43 3 * * 0'
+
+jobs:
+  build_publish:
+    name: Build/publish containers
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      matrix:
+        tag:
+          - azure-pipelines-azureagent
+          - azure-pipelines-centos7
+          - azure-pipelines-jupyterhub
+          - azure-pipelines-rocky8
+      fail-fast: false
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Fix image date tag
+        run: |
+          echo IMAGE_TAG=$(date +"%Y%m%d") >> $GITHUB_ENV
+    
+      - name: Determine latest release of VSTS Agent
+        if: matrix.tag == 'azure-pipelines-azureagent'
+        id: getvstsagentlatest
+        run: |
+          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -r .name)
+          echo "Building release $release"
+          echo "RELEASE=${release:1}" >> $GITHUB_ENV
+
+      - name: Fetch vsc-config
+        if: matrix.tag == 'azure-pipelines-jupyterhub'
+        uses: actions/checkout@v3
+        with:
+          repository: vub-hpc/vsc-config
+          token: ${{ secrets.GH_PAT_VSC_CONFIG }}
+          path: azure-pipelines-jupyterhub/vsc-config
+
+      - name: Build Image
+        uses: redhat-actions/buildah-build@v2.12
+        id: build-image
+        with:
+          tags: latest ${{ github.sha }} ${{ env.IMAGE_TAG }} ${{env.RELEASE}}
+          image: ${{ matrix.tag }}
+          context: ${{ matrix.tag }}
+          build-args: |
+            operator_name=${{ secrets.JH_USERNAME }}
+            operator_uid=${{ secrets.JH_UID }}
+            az_ag_release=${{ env.RELEASE }}
+          dockerfiles: |
+            ./${{ matrix.tag }}/Dockerfile
+
+      - name: Publish image on ghcr.io
+        id: push-to-ghcr
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        uses: redhat-actions/push-to-registry@v2.7
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print image name and tags
+        run: echo "Image ${{ steps.build-image.outputs.image }} build with tags ${{ steps.build-image.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Print image url
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}" >> $GITHUB_STEP_SUMMARY
