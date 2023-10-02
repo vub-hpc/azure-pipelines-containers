@@ -21,9 +21,6 @@ trap 'exit 143' TERM
 cp /mnt/config/.agent ./
 cp /mnt/config/.credentials ./
 cp /mnt/config/.credentials_rsaparams ./
-cp /mnt/config/.env ./
-cp /mnt/config/.path ./
-cp /mnt/config/license.html ./
 
 chmod +x ./run.sh
 
