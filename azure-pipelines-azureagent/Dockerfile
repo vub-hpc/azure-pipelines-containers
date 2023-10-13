@@ -26,6 +26,6 @@ RUN tar -xzf $TARBALL && rm $TARBALL
 
 
 COPY files/start.sh .
-RUN chmod +x start.sh
+RUN chmod +x start.sh run.sh
 
 ENTRYPOINT [ "./start.sh" ]
