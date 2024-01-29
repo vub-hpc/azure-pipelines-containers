@@ -29,6 +29,15 @@ jobs:
       - name: Fix image date tag
         run: |
           echo IMAGE_TAG=$(date +"%Y%m%d") >> $GITHUB_ENV
+
+      - name: Check if we should publish
+        if: >-
+          (github.event_name == 'push' ||
+          github.event_name == 'schedule' ||
+          github.event_name == 'workflow_dispatch') &&
+          github.ref_name == 'main'
+        run: |
+          echo PUBLISH_IMAGES=1 >> $GITHUB_ENV
     
       - name: Determine latest release of VSTS Agent
         if: matrix.tag == 'azure-pipelines-azureagent'
@@ -60,9 +69,12 @@ jobs:
           dockerfiles: |
             ./${{ matrix.tag }}/Dockerfile
 
+      - name: Print image name and tags
+        run: echo "Image ${{ steps.build-image.outputs.image }} build with tags ${{ steps.build-image.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
       - name: Publish image on ghcr.io
         id: push-to-ghcr
-        if: (github.event_name == 'schedule' || github.event_name == 'push') && github.ref_name == 'main'
+        if: env.PUBLISH_IMAGES
         uses: redhat-actions/push-to-registry@v2.7
         with:
           image: ${{ steps.build-image.outputs.image }}
@@ -71,9 +83,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Print image name and tags
-        run: echo "Image ${{ steps.build-image.outputs.image }} build with tags ${{ steps.build-image.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-
       - name: Print image url
-        if: (github.event_name == 'schedule' || github.event_name == 'push') && github.ref_name == 'main'
+        if: env.PUBLISH_IMAGES
         run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}" >> $GITHUB_STEP_SUMMARY
