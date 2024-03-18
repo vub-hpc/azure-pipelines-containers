@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fix image date tag
         run: |
@@ -49,14 +49,14 @@ jobs:
 
       - name: Fetch vsc-config
         if: matrix.tag == 'azure-pipelines-jupyterhub'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: vub-hpc/vsc-config
           token: ${{ secrets.GH_PAT_VSC_CONFIG }}
           path: azure-pipelines-jupyterhub/vsc-config
 
       - name: Build Image
-        uses: redhat-actions/buildah-build@v2.12
+        uses: redhat-actions/buildah-build@v2.13
         id: build-image
         with:
           tags: latest ${{ github.sha }} ${{ env.IMAGE_TAG }} ${{env.RELEASE}}
@@ -75,7 +75,7 @@ jobs:
       - name: Publish image on ghcr.io
         id: push-to-ghcr
         if: env.PUBLISH_IMAGES
-        uses: redhat-actions/push-to-registry@v2.7
+        uses: redhat-actions/push-to-registry@v2.8
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
