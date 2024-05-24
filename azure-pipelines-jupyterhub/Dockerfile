@@ -1,4 +1,4 @@
-# Copyright 2023 Vrije Universiteit Brussel
+# Copyright 2024 Vrije Universiteit Brussel
 #
 # This file is part of notebook-platform,
 # originally created by the HPC team of Vrij Universiteit Brussel (http://hpc.vub.be),
@@ -20,11 +20,11 @@
 #
 ###
 #
-# JupyterHub 2.3 + Oauthenticator + batchspawner
+# JupyterHub 4.1 + Oauthenticator + batchspawner
 # based on https://github.com/jupyterhub/oauthenticator/blob/main/examples/full/Dockerfile
 # JupyterHub run as non-root user
 
-FROM jupyterhub/jupyterhub:3.1
+FROM jupyterhub/jupyterhub:4.1
 
 MAINTAINER VUB-HPC <hpc@vub.be>
 
@@ -43,9 +43,10 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 RUN python3 -m pip install --upgrade pip
 # install Oauthenticator 
 RUN python3 -m pip install oauthenticator
-# install BatchSpawner and Modular Slurm Spawner (vub-hpc fork)
-RUN python3 -m pip install https://github.com/vub-hpc/batchspawner/archive/refs/tags/v1.2.2.tar.gz
-RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v6.2.3.tar.gz
+# install BatchSpawner: commit 3a65827c is v3.0 + our PR#254
+RUN python3 -m pip install https://github.com/jupyterhub/batchspawner/archive/3a65827c0633556e5323c7607b3f9d20d1ddbbff.zip
+# install Modular Slurm Spawner (vub-hpc fork)
+RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v7.0.1.5.tar.gz
 # install vsc-config
 ADD vsc-config /opt/vsc-config
 RUN python3 -m pip install vsc-base
