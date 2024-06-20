@@ -46,7 +46,7 @@ RUN python3 -m pip install oauthenticator
 # install BatchSpawner: commit 3a65827c is v3.0 + our PR#254
 RUN python3 -m pip install https://github.com/jupyterhub/batchspawner/archive/3a65827c0633556e5323c7607b3f9d20d1ddbbff.zip
 # install Modular Slurm Spawner (vub-hpc fork)
-RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v7.0.1.5.tar.gz
+RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v7.5.0.tar.gz
 # install vsc-config
 ADD vsc-config /opt/vsc-config
 RUN python3 -m pip install vsc-base
