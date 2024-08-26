@@ -1,37 +1,28 @@
-name: Build and publish container images
+name: Build and publish ondemand container
 on:
+  workflow_dispatch:
+    inputs:
+      upstream_version:
+        type: string
+        description: Which version should be build?
   schedule:
    # rebuild image every Monday morning
    - cron: '43 3 * * 1'
   push:
-    paths-ignore:
+    paths:
       - 'ondemand/**'
   pull_request:
-    paths-ignore:
+    paths:
       - 'ondemand/**'
 
 jobs:
-  build_publish:
-    name: Build/publish containers
+  build_publish_ondemand:
+    name: Build/publish ondemand container
     runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
-    strategy:
-      matrix:
-        tag:
-          - azure-pipelines-azureagent
-          - azure-pipelines-jupyterhub
-          - azure-pipelines-rocky8
-      fail-fast: false
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-
-      - name: Fix image date tag
-        run: |
-          echo IMAGE_TAG=$(date +"%Y%m%d") >> $GITHUB_ENV
-
       - name: Check if we should publish
         if: >-
           (github.event_name == 'push' ||
@@ -40,37 +31,45 @@ jobs:
           github.ref_name == 'main'
         run: |
           echo PUBLISH_IMAGES=1 >> $GITHUB_ENV
-    
-      - name: Determine latest release of VSTS Agent
-        if: matrix.tag == 'azure-pipelines-azureagent'
-        id: getvstsagentlatest
+
+      - name: Set a tag based on the date
+        run: |
+          IMAGE_TAG=$(date +"%Y%m%d")
+          echo IMAGE_TAG=$IMAGE_TAG >> $GITHUB_ENV
+          echo "Image tag is $IMAGE_TAG"
+
+      - name: Determine latest release of ondemand
+        id: getlatestrelease
+        run: |
+          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/OSC/ondemand/releases/latest | jq -r .name)
+          echo "Building release $release"
+          echo "RELEASE=${release}" >> $GITHUB_ENV
+
+      - name: Check the version specified manually
+        if: ${{ inputs.upstream_version }}
         shell: bash
         run: |
-          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -e -r .name)
+          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/OSC/ondemand/releases/tags/${{ inputs.upstream_version }} | jq -e -r .name)
           echo "Building release $release"
-          echo "RELEASE=${release:1}" >> $GITHUB_ENV
+          echo "RELEASE=${release}" >> $GITHUB_ENV
 
-      - name: Fetch vsc-config
-        if: matrix.tag == 'azure-pipelines-jupyterhub'
+      - name: Check out the repo
         uses: actions/checkout@v4
         with:
-          repository: vub-hpc/vsc-config
-          token: ${{ secrets.GH_PAT_VSC_CONFIG }}
-          path: azure-pipelines-jupyterhub/vsc-config
+          repository: 'OSC/ondemand'
+          ref: '${{ env.RELEASE }}'
+          path: 'ondemand'
 
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         id: build-image
         with:
-          tags: latest ${{ github.sha }} ${{ env.IMAGE_TAG }} ${{env.RELEASE}}
-          image: ${{ matrix.tag }}
-          context: ${{ matrix.tag }}
+          tags: latest ${{ env.IMAGE_TAG }} ${{ env.RELEASE }}
+          image: ondemand
+          containerfiles: ondemand/Dockerfile
+          context: ondemand
           build-args: |
-            operator_name=${{ secrets.JH_USERNAME }}
-            operator_uid=${{ secrets.JH_UID }}
-            az_ag_release=${{ env.RELEASE }}
-          containerfiles: |
-            ./${{ matrix.tag }}/Dockerfile
+            VERSION=${{ env.RELEASE }}
 
       - name: Print image name and tags
         run: echo "Image ${{ steps.build-image.outputs.image }} build with tags ${{ steps.build-image.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
