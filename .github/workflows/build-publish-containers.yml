@@ -85,3 +85,69 @@ jobs:
       - name: Print image url
         if: env.PUBLISH_IMAGES
         run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}" >> $GITHUB_STEP_SUMMARY
+
+
+  build_publish_ondemand:
+    name: Build/publish ondemand container
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check if we should publish
+        if: >-
+          (github.event_name == 'push' ||
+          github.event_name == 'schedule' ||
+          github.event_name == 'workflow_dispatch') &&
+          github.ref_name == 'main'
+        run: |
+          echo PUBLISH_IMAGES=1 >> $GITHUB_ENV
+
+      - name: Set a tag based on the date
+        run: |
+          IMAGE_TAG=$(date +"%Y%m%d")
+          echo IMAGE_TAG=$IMAGE_TAG >> $GITHUB_ENV
+          echo "Image tag is $IMAGE_TAG"
+
+      - name: Determine latest release of ondemand
+        id: getlatestrelease
+        run: |
+          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/OSC/ondemand/releases/latest | jq -r .name)
+          echo "Building release $release"
+          echo "RELEASE=${release}" >> $GITHUB_ENV
+
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'OSC/ondemand'
+          ref: '${{ env.RELEASE }}'
+          path: 'ondemand'
+
+      - name: Build Image
+        uses: redhat-actions/buildah-build@v2
+        id: build-image
+        with:
+          tags: latest ${{ env.IMAGE_TAG }} ${{ env.RELEASE }}
+          image: ondemand
+          containerfiles: ondemand/Dockerfile
+          context: ondemand
+          build-args: |
+            VERSION=${{ env.RELEASE }}
+
+      - name: Print image name and tags
+        run: echo "Image ${{ steps.build-image.outputs.image }} build with tags ${{ steps.build-image.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish image on ghcr.io
+        id: push-to-ghcr
+        if: env.PUBLISH_IMAGES
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print image url
+        if: env.PUBLISH_IMAGES
+        run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}" >> $GITHUB_STEP_SUMMARY
