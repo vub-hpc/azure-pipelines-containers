@@ -2,6 +2,11 @@ name: Build and publish container images
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      upstream_version:
+        type: string
+        description: Which version should be build?
+
   push:
   schedule:
    # rebuild image every Monday morning
@@ -113,6 +118,14 @@ jobs:
         id: getlatestrelease
         run: |
           release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/OSC/ondemand/releases/latest | jq -r .name)
+          echo "Building release $release"
+          echo "RELEASE=${release}" >> $GITHUB_ENV
+
+      - name: Check the version specified manually
+        if: ${{ inputs.upstream_version }}
+        shell: bash
+        run: |
+          release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/OSC/ondemand/releases/tags/${{ inputs.upstream_version }} | jq -e -r .name)
           echo "Building release $release"
           echo "RELEASE=${release}" >> $GITHUB_ENV
 
