@@ -28,4 +28,13 @@ RUN tar -xzf $TARBALL && rm $TARBALL
 COPY files/start.sh .
 RUN chmod +x start.sh run.sh
 
+# Create agent user and set up home directory
+RUN groupadd -g 477 agent
+RUN useradd -u 950 -g 477 -m -d /home/agent agent
+RUN chown -R agent:agent /azp /home/agent
+
+USER agent
+# Another option is to run the agent as root.
+# ENV AGENT_ALLOW_RUNASROOT="true"
+
 ENTRYPOINT [ "./start.sh" ]
