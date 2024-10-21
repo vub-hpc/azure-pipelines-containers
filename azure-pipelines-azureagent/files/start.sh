@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export AGENT_ALLOW_RUNASROOT="1"
+#export AGENT_ALLOW_RUNASROOT="1"
 
 print_header() {
   lightcyan='\033[1;36m'
