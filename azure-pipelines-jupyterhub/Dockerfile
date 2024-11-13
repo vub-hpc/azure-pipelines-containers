@@ -49,6 +49,7 @@ RUN python3 -m pip install https://github.com/jupyterhub/batchspawner/archive/3a
 RUN python3 -m pip install https://github.com/vub-hpc/jupyterhub_moss/archive/refs/tags/v7.6.1.tar.gz
 # install vsc-config
 ADD vsc-config /opt/vsc-config
+RUN python3 -m pip install 'setuptools<54.0' wheel
 RUN python3 -m pip install https://pypi.python.org/packages/source/v/vsc-base/vsc-base-3.5.9.tar.gz
 RUN python3 -m pip install /opt/vsc-config
 # install static resources for theming
