@@ -56,6 +56,9 @@ jobs:
           ref: '${{ env.RELEASE }}'
           path: 'ondemand'
 
+      - name: Fix rpm release version to stick to current main release
+        run: sed -i 's@/latest/ondemand-release-web-latest-1-6.noarch.rpm@/3.1/ondemand-release-web-3.1-1.el8.noarch.rpm@' ondemand/Dockerfile
+
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         id: build-image
