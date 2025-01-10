@@ -56,6 +56,9 @@ jobs:
           ref: '${{ env.RELEASE }}'
           path: 'ondemand'
 
+      - name: Fix versions of module streams
+        run: sed -i 's@nodejs:18@nodejs:20@;s@ruby:3\.1@ruby:3.3@' ondemand/Dockerfile
+
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         id: build-image
