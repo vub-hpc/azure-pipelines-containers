@@ -57,7 +57,7 @@ jobs:
           path: 'ondemand'
 
       - name: Use the dockerfile from the master branch
-        run: wget -O ondemand/Dockerfile 'https://raw.githubusercontent.com/OSC/ondemand/refs/heads/master/Dockerfile'
+        run: wget -O ondemand/Dockerfile 'https://raw.githubusercontent.com/OSC/ondemand/2456c97e81805f1134923a712e8cc4603b77e674/Dockerfile'
 
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
