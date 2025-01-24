@@ -10,9 +10,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     git \
     iputils-ping \
     jq \
+    libicu70 \
     lsb-release \
     software-properties-common \
-    libicu70
+    python3-pip
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ARG az_ag_release
