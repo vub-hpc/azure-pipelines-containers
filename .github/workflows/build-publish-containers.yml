@@ -21,7 +21,6 @@ jobs:
       matrix:
         tag:
           - azure-pipelines-azureagent
-          - azure-pipelines-jupyterhub
           - azure-pipelines-rocky8
       fail-fast: false
     steps:
