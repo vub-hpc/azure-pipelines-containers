@@ -49,14 +49,6 @@ jobs:
           echo "Building release $release"
           echo "RELEASE=${release:1}" >> $GITHUB_ENV
 
-      - name: Fetch vsc-config
-        if: matrix.tag == 'azure-pipelines-jupyterhub'
-        uses: actions/checkout@v4
-        with:
-          repository: vub-hpc/vsc-config
-          token: ${{ secrets.GH_PAT_VSC_CONFIG }}
-          path: azure-pipelines-jupyterhub/vsc-config
-
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
         id: build-image
