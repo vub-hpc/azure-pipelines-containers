@@ -1,8 +1,8 @@
 name: Build and publish container images
 on:
   schedule:
-   # rebuild image every Monday morning
-   - cron: '43 3 * * 1'
+    # rebuild image every Monday morning
+    - cron: '43 3 * * 1'
   push:
     paths-ignore:
       - 'ondemand/**'
@@ -39,7 +39,7 @@ jobs:
           github.ref_name == 'main'
         run: |
           echo PUBLISH_IMAGES=1 >> $GITHUB_ENV
-    
+
       - name: Determine latest release of VSTS Agent
         if: matrix.tag == 'azure-pipelines-azureagent'
         id: getvstsagentlatest
