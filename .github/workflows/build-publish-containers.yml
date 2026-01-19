@@ -22,6 +22,8 @@ jobs:
         tag:
           - azure-pipelines-azureagent
           - azure-pipelines-rocky8
+          - azure-pipelines-rocky9
+          - azure-pipelines-rocky10
       fail-fast: false
     steps:
       - name: Check out the repo
