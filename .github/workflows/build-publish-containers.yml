@@ -1,8 +1,8 @@
 name: Build and publish container images
 on:
   schedule:
-   # rebuild image every Monday morning
-   - cron: '43 3 * * 1'
+    # rebuild image every Monday morning
+    - cron: '43 3 * * 1'
   push:
     paths-ignore:
       - 'ondemand/**'
@@ -21,8 +21,9 @@ jobs:
       matrix:
         tag:
           - azure-pipelines-azureagent
-          - azure-pipelines-jupyterhub
           - azure-pipelines-rocky8
+          - azure-pipelines-rocky9
+          - azure-pipelines-rocky10
       fail-fast: false
     steps:
       - name: Check out the repo
@@ -40,7 +41,7 @@ jobs:
           github.ref_name == 'main'
         run: |
           echo PUBLISH_IMAGES=1 >> $GITHUB_ENV
-    
+
       - name: Determine latest release of VSTS Agent
         if: matrix.tag == 'azure-pipelines-azureagent'
         id: getvstsagentlatest
@@ -49,14 +50,6 @@ jobs:
           release=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -e -r .name)
           echo "Building release $release"
           echo "RELEASE=${release:1}" >> $GITHUB_ENV
-
-      - name: Fetch vsc-config
-        if: matrix.tag == 'azure-pipelines-jupyterhub'
-        uses: actions/checkout@v4
-        with:
-          repository: vub-hpc/vsc-config
-          token: ${{ secrets.GH_PAT_VSC_CONFIG }}
-          path: azure-pipelines-jupyterhub/vsc-config
 
       - name: Build Image
         uses: redhat-actions/buildah-build@v2
